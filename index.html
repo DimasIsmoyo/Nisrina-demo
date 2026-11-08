@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="id" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Nisrina - AI Assistant Catatan & Agenda Rapat</title>
+  <style>
+    :root {
+      --bg: #0b0f19;
+      --card: #111827;
+      --border: #1f2937;
+      --text: #f3f4f6;
+      --muted: #9ca3af;
+      --accent: #06b6d4;
+      --accent-glow: rgba(6, 182, 212, 0.2);
+      --danger: #ef4444;
+      --success: #10b981;
+    }
+    [data-theme="light"] {
+      --bg: #f8fafc;
+      --card: #ffffff;
+      --border: #e2e8f0;
+      --text: #0f172a;
+      --muted: #64748b;
+      --accent: #0284c7;
+      --accent-glow: rgba(2, 132, 199, 0.15);
+      --danger: #dc2626;
+      --success: #059669;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, sans-serif; transition: background 0.3s, color 0.3s, border-color 0.3s; }
+    body { background: var(--bg); color: var(--text); line-height: 1.6; padding: 0 1rem; }
+    .container { max-width: 900px; margin: 0 auto; padding: 1.5rem 0; }
+    .nav { display: flex; justify-content: space-between; align-items: center; padding: 1rem 0; border-bottom: 1px solid var(--border); }
+    .logo { font-weight: 700; font-size: 1.2rem; color: var(--accent); letter-spacing: 0.5px; }
+    .theme-btn { background: var(--card); border: 1px solid var(--border); color: var(--text); padding: 0.5rem 1rem; border-radius: 20px; cursor: pointer; font-size: 0.85rem; font-weight: 500; }
+    .badge { display: inline-flex; align-items: center; gap: 0.5rem; background: var(--accent-glow); color: var(--accent); border: 1px solid var(--accent); padding: 0.25rem 0.75rem; border-radius: 50px; font-size: 0.85rem; margin-bottom: 1rem; font-weight: 500; }
+    .pulse { width: 8px; height: 8px; background: var(--success); border-radius: 50%; box-shadow: 0 0 8px var(--success); }
+    header { text-align: center; padding: 3rem 1rem 2rem; }
+    h1 { font-size: 2.5rem; margin-bottom: 0.5rem; letter-spacing: -0.5px; }
+    .tagline { font-size: 1.1rem; color: var(--muted); max-width: 650px; margin: 0 auto 1.5rem; }
+    .avatar { width: 80px; height: 80px; border-radius: 50%; background: linear-gradient(135deg, var(--accent), #3b82f6); display: flex; align-items: center; justify-content: center; font-size: 2.2rem; color: #fff; margin: 0 auto 1rem; box-shadow: 0 0 20px var(--accent-glow); }
+    .grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; margin: 2rem 0; }
+    .grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem; margin: 2rem 0; }
+    .card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 1.5rem; }
+    .card.chaos { border-left: 4px solid var(--danger); }
+    .card.solution { border-left: 4px solid var(--success); }
+    .card h3 { margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem; font-size: 1.1rem; }
+    .card ul { list-style: none; }
+    .card li { margin-bottom: 0.75rem; position: relative; padding-left: 1.5rem; font-size: 0.95rem; }
+    .card.chaos li::before { content: "✕"; color: var(--danger); position: absolute; left: 0; font-weight: bold; }
+    .card.solution li::before { content: "✓"; color: var(--success); position: absolute; left: 0; font-weight: bold; }
+    .feature-icon { font-size: 1.8rem; margin-bottom: 0.75rem; display: block; }
+    .sim-box { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 1.5rem; margin: 2.5rem 0; }
+    .sim-controls { display: flex; gap: 0.5rem; flex-wrap: wrap; margin: 1rem 0; }
+    .sim-btn { background: var(--bg); border: 1px solid var(--border); color: var(--text); padding: 0.6rem 1rem; border-radius: 8px; cursor: pointer; font-size: 0.85rem; font-weight: 500; }
+    .sim-btn:hover { border-color: var(--accent); color: var(--accent); }
+    .chat-window { background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 1rem; min-height: 180px; display: flex; flex-direction: column; gap: 0.75rem; font-size: 0.9rem; }
+    .msg { padding: 0.75rem 1rem; border-radius: 8px; max-width: 85%; }
+    .msg.user { background: var(--accent-glow); color: var(--text); border: 1px solid var(--accent); align-self: flex-end; }
+    .msg.agent { background: var(--card); border: 1px solid var(--border); align-self: flex-start; }
+    .typing { color: var(--muted); font-style: italic; font-size: 0.85rem; padding: 0.5rem; }
+    .cta-sec { text-align: center; padding: 3rem 1rem; background: var(--card); border: 1px solid var(--border); border-radius: 16px; margin: 3rem 0 2rem; }
+    .btn-cta { display: inline-block; background: linear-gradient(135deg, var(--accent), #2563eb); color: #ffffff; text-decoration: none; font-weight: 600; padding: 0.85rem 2rem; border-radius: 50px; box-shadow: 0 4px 15px var(--accent-glow); margin-top: 1.25rem; }
+    .btn-cta:hover { opacity: 0.95; transform: translateY(-2px); }
+    footer { text-align: center; color: var(--muted); font-size: 0.85rem; padding: 1.5rem 0 2rem; border-top: 1px solid var(--border); }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <nav class="nav">
+      <div class="logo">⚡ Nisrina AI</div>
+      <button class="theme-btn" id="themeToggle" onclick="toggleTheme()">☀️ Mode Terang</button>
+    </nav>
+
+    <!-- 1. HERO SECTION -->
+    <header>
+      <div class="avatar">🤖</div>
+      <div class="badge"><span class="pulse"></span> 🟢 Status: Active & Ready 24/7</div>
+      <h1>Nisrina</h1>
+      <p class="tagline">Karyawan Digital cerdas yang merapikan catatan rapat berantakan, mengorganisir tugas, dan otomatis menginputkan agenda ke Google Calendar.</p>
+    </header>
+
+    <!-- 2. PROBLEM & SOLUTION CARD -->
+    <section>
+      <h2 style="text-align: center; margin-bottom: 1.5rem; font-size: 1.5rem;">Masalah & Solusi</h2>
+      <div class="grid-2">
+        <div class="card chaos">
+          <h3>The Chaos</h3>
+          <ul>
+            <li>Catatan rapat sering berantakan akibat alur pembahasan yang tidak menentu.</li>
+            <li>Agenda dan pembagian tugas rapat lanjutan sering terlupa dimasukkan ke kalender.</li>
+            <li>Action items hasil diskusi tercecer dan sulit terorganisir dengan baik.</li>
+          </ul>
+        </div>
+        <div class="card solution">
+          <h3>The Solution</h3>
+          <ul>
+            <li>Nisrina merangkum dan mengonversi catatan mentah menjadi risalah rapat yang rapi.</li>
+            <li>Jadwal pertemuan baru langsung diinputkan secara otomatis ke Google Calendar.</li>
+            <li>Tugas dan hasil rapat terorganisasi secara terstruktur di Google Keep & Drive.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3. CORE CAPABILITIES -->
+    <section>
+      <h2 style="text-align: center; margin-top: 3rem; margin-bottom: 1.5rem; font-size: 1.5rem;">Fitur & Tools Terhubung</h2>
+      <div class="grid-3">
+        <div class="card">
+          <span class="feature-icon">📅</span>
+          <h3>Google Calendar</h3>
+          <p style="color: var(--muted); font-size: 0.9rem;">Deteksi otomatis tanggal dan jam dari catatan rapat, lalu buat agenda pertemuan langsung tanpa input manual.</p>
+        </div>
+        <div class="card">
+          <span class="feature-icon">📝</span>
+          <h3>Google Keep</h3>
+          <p style="color: var(--muted); font-size: 0.9rem;">Simpan daftar tugas (action items) dan catatan ringkas rapat secara terorganisir untuk akses cepat.</p>
+        </div>
+        <div class="card">
+          <span class="feature-icon">📁</span>
+          <h3>Google Drive</h3>
+          <p style="color: var(--muted); font-size: 0.9rem;">Dokumentasikan risalah rapat (Minutes of Meeting) lengkap dan simpan dengan rapi di folder Google Drive.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 4. INTERACTIVE SIMULATION -->
+    <section class="sim-box">
+      <h2 style="font-size: 1.3rem;">Simulasi AI Assistant Nisrina</h2>
+      <p style="color: var(--muted); font-size: 0.9rem;">Pilih skenario di bawah untuk melihat Nisrina merapikan catatan dan mengelola agenda secara langsung:</p>
+      <div class="sim-controls">
+        <button class="sim-btn" onclick="runSim(1)">📌 Merapikan Catatan Rapat</button>
+        <button class="sim-btn" onclick="runSim(2)">📅 Input Agenda Calendar</button>
+        <button class="sim-btn" onclick="runSim(3)">📋 Mengorganisir Tugas</button>
+      </div>
+      <div class="chat-window" id="chatWindow">
+        <div class="msg agent">Halo! Saya Nisrina. Silakan klik tombol skenario di atas untuk menguji kemampuan saya.</div>
+      </div>
+    </section>
+
+    <!-- 5. FOOTER & CTA -->
+    <section class="cta-sec">
+      <h2 style="font-size: 1.5rem;">Butuh Layanan Lebih Banyak Lagi?</h2>
+      <p style="color: var(--muted); max-width: 550px; margin: 0.5rem auto 0; font-size: 0.95rem;">Hubungi kami untuk integrasi Nisrina dan penyesuaian solusi Karyawan Digital untuk tim Anda.</p>
+      <a href="https://wa.me/6281212812071?text=Halo%20Dwiki,%20saya%20tertarik%20dengan%20layanan%20AI%20Assistant%20Nisrina" target="_blank" class="btn-cta">💬 Hubungi Dwiki (081212812071)</a>
+    </section>
+
+    <footer>
+      Built with AI · AI Builder Bootcamp Showcase
+    </footer>
+  </div>
+
+  <script>
+    function toggleTheme() {
+      const html = document.documentElement;
+      const btn = document.getElementById('themeToggle');
+      if (html.getAttribute('data-theme') === 'dark') {
+        html.setAttribute('data-theme', 'light');
+        btn.textContent = '🌙 Mode Gelap';
+      } else {
+        html.setAttribute('data-theme', 'dark');
+        btn.textContent = '☀️ Mode Terang';
+      }
+    }
+
+    const scenarios = {
+      1: {
+        user: "Nisrina, tolong rapikan catatan rapat ini: 'tadi bahas revisi fitur sprint 2, Pak Budi minta kelar kamis jam 3 sore, terus senin depan jam 10 pagi ada sync lagi.'",
+        typing: "Nisrina sedang merangkum dan merapikan struktur catatan...",
+        response: "✅ <b>Ringkasan Rapat Berhasil Dirapikan:</b><br>• <b>Topik:</b> Revisi Fitur Sprint 2<br>• <b>Tenggat Waktu:</b> Kamis Pkl 15:00 WIB (Penanggung jawab: Pak Budi)<br>• <b>Agenda Berikutnya:</b> Sync Rapat - Senin Pkl 10:00 WIB<br><br>📁 <i>Dokumen MoM telah diarsipkan otomatis ke Google Drive & Keep.</i>"
+      },
+      2: {
+        user: "Tolong jadwalkan agenda rapat koordinasi tim untuk besok pukul 14.00 WIB.",
+        typing: "Nisrina menginput agenda ke Google Calendar...",
+        response: "📅 <b>Agenda Berhasil Diinput!</b><br>• <b>Acara:</b> Rapat Koordinasi Tim<br>• <b>Waktu:</b> Besok, 14:00 - 15:00 WIB<br>• <b>Status:</b> Tersimpan di Google Calendar dengan notifikasi pengingat 15 menit sebelum acara."
+      },
+      3: {
+        user: "Tolong organisir tugas-tugas dari rapat tadi pagi.",
+        typing: "Nisrina mengesktrak to-do list hasil rapat...",
+        response: "📋 <b>Daftar Tugas Terorganisir (Google Keep):</b><br>1. [ ] Tim Dev: Deploy pembaruan modul integrasi API<br>2. [ ] Tim UI/UX: Finansialkan mockup tampilan light/dark mode<br>3. [ ] Dwiki: Konfirmasi ketersediaan ruang rapat untuk agenda berikutnya"
+      }
+    };
+
+    function runSim(id) {
+      const win = document.getElementById('chatWindow');
+      const data = scenarios[id];
+      win.innerHTML = `<div class="msg user">${data.user}</div><div class="typing" id="typingMsg">⏳ ${data.typing}</div>`;
+      
+      setTimeout(() => {
+        const typingEl = document.getElementById('typingMsg');
+        if (typingEl) typingEl.remove();
+        win.innerHTML += `<div class="msg agent">${data.response}</div>`;
+        win.scrollTop = win.scrollHeight;
+      }, 1000);
+    }
+  </script>
+</body>
+</html>
